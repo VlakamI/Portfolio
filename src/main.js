@@ -7,6 +7,7 @@ import heroImg from './assets/hero.png'
 const portfolioData = {
   name: "Vladislav Kamianets",
   role: "Systems & AI Engineer",
+  email: "vladislav.kamianets@email.com", // <-- Swap this with your actual email!
   skills: {
     languages: ["Rust", "C++", "C# / .NET", "Java", "Python", "SQL"],
     systems: ["AI & Machine Learning", "CUDA Parallel Computing", "Control Systems", "Graph Algorithms"],
@@ -78,7 +79,7 @@ function renderLayout() {
       `;
     }).join('');
 
-  // Inject Master Template (Added hidden lightbox shell at the very bottom)
+  // Inject Master Template
   app.innerHTML = `
     <nav class="navbar">
       <div class="logo">./VK/root</div>
@@ -86,7 +87,6 @@ function renderLayout() {
         <li><a href="#hero">Home</a></li>
         <li><a href="#skills">Skills</a></li>
         <li><a href="#featured">Featured</a></li>
-        <li><a href="#projects">All Projects</a></li>
         <li><a href="#contact">Contact</a></li>
       </ul>
     </nav>
@@ -107,6 +107,14 @@ function renderLayout() {
     <section id="featured" class="featured-section">
       <h2 class="section-title">Featured Work</h2>
       <div class="featured-grid">${featuredHTML}</div>
+    </section>
+
+    <section id="contact" class="contact-section">
+      <h2 class="section-title">Get In Touch</h2>
+      <div class="contact-card">
+        <p>I am currently exploring opportunities in systems programming, automation/control pipelines, and AI performance engineering. Drop me a line if you want to collaborate or talk architecture.</p>
+        <a href="mailto:${portfolioData.email}" class="btn-primary email-btn">${portfolioData.email}</a>
+      </div>
     </section>
 
     <div id="lightbox-modal" class="lightbox">
@@ -137,22 +145,20 @@ function initLightboxComponent() {
       target.innerHTML = '';
       const clonedMedia = coreMedia.cloneNode(true);
       
-      // If it's an enlarged video, give recruiters native video controls (pause/seek)
       if (clonedMedia.tagName === 'VIDEO') {
         clonedMedia.setAttribute('controls', 'true');
       }
 
       target.appendChild(clonedMedia);
       modal.classList.add('active');
-      document.body.style.overflow = 'hidden'; // Stop background scrolling
+      document.body.style.overflow = 'hidden';
     });
   });
 
-  // Close triggers
   const closeModal = () => {
     modal.classList.remove('active');
     target.innerHTML = '';
-    document.body.style.overflow = ''; // Restore background scrolling
+    document.body.style.overflow = '';
   };
 
   closeBtn.addEventListener('click', closeModal);
@@ -161,47 +167,11 @@ function initLightboxComponent() {
   });
 }
 
-// INTERACTIVE LOGIC (SEARCH)
+// INTERACTIVE LOGIC (SEARCH SAFEGUARD)
 function initSearchComponent() {
   const searchInput = document.querySelector('#project-search');
   const container = document.querySelector('#projects-container');
-
   if (!searchInput || !container) return;
-
-  function displaySearchableProjects(projects) {
-    container.innerHTML = "";
-    if (projects.length === 0) {
-      container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">No matching projects found.</p>`;
-      return;
-    }
-
-    projects.forEach(project => {
-      const card = document.createElement('div');
-      card.classList.add('featured-card');
-      card.innerHTML = `
-        <div class="project-info">
-          <h3>${project.title}</h3>
-          <p>${project.desc}</p>
-          <div class="tags">${project.tags.map(tag => `<span>${tag}</span>`).join('')}</div>
-        </div>
-      `;
-      container.appendChild(card);
-    });
-  }
-
-  searchInput.addEventListener('input', (e) => {
-    const searchTerm = e.target.value.toLowerCase();
-    const filtered = portfolioData.allProjects.filter(project => {
-      return (
-        project.title.toLowerCase().includes(searchTerm) ||
-        project.desc.toLowerCase().includes(searchTerm) ||
-        project.tags.some(t => t.toLowerCase().includes(searchTerm))
-      );
-    });
-    displaySearchableProjects(filtered);
-  });
-
-  displaySearchableProjects(portfolioData.allProjects);
 }
 
 // Kick off compile
