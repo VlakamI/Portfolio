@@ -7,7 +7,7 @@ import heroImg from './assets/hero.png'
 const portfolioData = {
   name: "Vladislav Kamianets",
   role: "Systems & AI Engineer",
-  email: "vladislav.kamianets@email.com", // <-- Swap this with your actual email!
+  email: "v.kamianets@email.com", // <-- Swap this with your actual email!
   skills: {
     languages: ["Rust", "C++", "C# / .NET", "Java", "Python", "SQL"],
     systems: ["AI & Machine Learning", "CUDA Parallel Computing", "Control Systems", "Graph Algorithms"],
