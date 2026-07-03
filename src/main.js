@@ -67,6 +67,7 @@ function renderLayout() {
         <div class="featured-card">
           <div class="project-media-wrapper">
             ${mediaHTML}
+            <div class="media-overlay-hint">Click to enlarge</div>
           </div>
           <div class="project-info">
             <h3>${proj.title}</h3>
@@ -77,7 +78,7 @@ function renderLayout() {
       `;
     }).join('');
 
-  // Inject Master Template
+  // Inject Master Template (Added hidden lightbox shell at the very bottom)
   app.innerHTML = `
     <nav class="navbar">
       <div class="logo">./VK/root</div>
@@ -107,10 +108,57 @@ function renderLayout() {
       <h2 class="section-title">Featured Work</h2>
       <div class="featured-grid">${featuredHTML}</div>
     </section>
+
+    <div id="lightbox-modal" class="lightbox">
+      <span class="lightbox-close">&times;</span>
+      <div id="lightbox-target"></div>
+    </div>
   `;
 
-  // Initialize interactive components after elements exist in the DOM
+  // Initialize interactive modules
   initSearchComponent();
+  initLightboxComponent();
+}
+
+// INTERACTIVE LOGIC (LIGHTBOX FULLSCREEN)
+function initLightboxComponent() {
+  const modal = document.querySelector('#lightbox-modal');
+  const target = document.querySelector('#lightbox-target');
+  const closeBtn = document.querySelector('.lightbox-close');
+  const wrappers = document.querySelectorAll('.project-media-wrapper');
+
+  if (!modal || !target) return;
+
+  wrappers.forEach(wrapper => {
+    const coreMedia = wrapper.querySelector('.project-media');
+    if (!coreMedia) return;
+
+    wrapper.addEventListener('click', () => {
+      target.innerHTML = '';
+      const clonedMedia = coreMedia.cloneNode(true);
+      
+      // If it's an enlarged video, give recruiters native video controls (pause/seek)
+      if (clonedMedia.tagName === 'VIDEO') {
+        clonedMedia.setAttribute('controls', 'true');
+      }
+
+      target.appendChild(clonedMedia);
+      modal.classList.add('active');
+      document.body.style.overflow = 'hidden'; // Stop background scrolling
+    });
+  });
+
+  // Close triggers
+  const closeModal = () => {
+    modal.classList.remove('active');
+    target.innerHTML = '';
+    document.body.style.overflow = ''; // Restore background scrolling
+  };
+
+  closeBtn.addEventListener('click', closeModal);
+  modal.addEventListener('click', (e) => {
+    if (e.target === modal) closeModal();
+  });
 }
 
 // INTERACTIVE LOGIC (SEARCH)
@@ -118,12 +166,10 @@ function initSearchComponent() {
   const searchInput = document.querySelector('#project-search');
   const container = document.querySelector('#projects-container');
 
-  // Safeguard: If the HTML sections are commented out, stop here so the script doesn't crash.
   if (!searchInput || !container) return;
 
   function displaySearchableProjects(projects) {
     container.innerHTML = "";
-    
     if (projects.length === 0) {
       container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--text-muted);">No matching projects found.</p>`;
       return;
@@ -143,7 +189,6 @@ function initSearchComponent() {
     });
   }
 
-  // Live input listening event
   searchInput.addEventListener('input', (e) => {
     const searchTerm = e.target.value.toLowerCase();
     const filtered = portfolioData.allProjects.filter(project => {
@@ -156,9 +201,8 @@ function initSearchComponent() {
     displaySearchableProjects(filtered);
   });
 
-  // Run the initial setup pass for the dynamic showcase grid
   displaySearchableProjects(portfolioData.allProjects);
 }
 
-// Kick off the site compilation
+// Kick off compile
 renderLayout();
